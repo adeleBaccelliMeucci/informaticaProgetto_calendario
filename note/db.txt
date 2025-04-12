@@ -1,0 +1,99 @@
+database
+utente: nome, passwrd, bolean se è aministratore 
+evento
+to do list
+attività (del to do list)
+giorno : etichetta (giornata impegnata/fuori casa/relax/mestruazione/ecc...)
+
+schema:
+utente(username (pk), password, amministratore);
+giorno(id(pk), dataGiorno, idEtichetta(fk), idUtente(fk));
+etichette(id(pk), titolo, sottotitolo, difficile, colore, utente(fk));
+evento(id(pk), titolo, descrizione, inizio, fine, idGiorno(fk));
+toDoList(id(pk), titolo, urgenza, idGiorno(fk));
+attività(id(pk), titolo, descrizione, completata, idToDoList(fk));
+
+CREATE DATABASE calendario;
+USE calendario;
+
+-- Tabella utente
+CREATE TABLE utente (
+    username VARCHAR(50) PRIMARY KEY,
+    password TEXT NOT NULL,
+    amministratore BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+-- Tabella etichette
+CREATE TABLE etichette (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+    titolo VARCHAR(255) NOT NULL,
+    sottotitolo VARCHAR(255),
+    difficoltà INT DEFAULT NULL,  -- Considera un nome più chiaro come 'difficoltà' per la colonna
+    colore VARCHAR(20),  -- Formato RGB, ad esempio 'rgb(255, 0, 0)'
+    username VARCHAR(50), 
+    FOREIGN KEY (username) REFERENCES utente(username)
+);
+
+-- Tabella giorno
+CREATE TABLE giorno (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+    dataGiorno DATE NOT NULL,
+    idEtichetta INT UNSIGNED,
+    username VARCHAR(50) NOT NULL,  -- Utilizzo 'username' per coerenza con 'utente'
+    FOREIGN KEY (idEtichetta) REFERENCES etichette(id),
+    FOREIGN KEY (username) REFERENCES utente(username) ON DELETE CASCADE
+);
+
+-- Tabella evento
+CREATE TABLE evento (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+    titolo VARCHAR(100) NOT NULL,
+    descrizione TEXT,
+    inizio TIME NOT NULL,
+    fine TIME NOT NULL,
+    idGiorno INT UNSIGNED NOT NULL, 
+    FOREIGN KEY (idGiorno) REFERENCES giorno(id) ON DELETE CASCADE
+);
+
+-- Tabella toDoList
+CREATE TABLE toDoList (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+    titolo VARCHAR(100) NOT NULL,
+    urgenza INT CHECK (urgenza BETWEEN 1 AND 10),
+    idGiorno INT UNSIGNED NOT NULL, 
+    FOREIGN KEY (idGiorno) REFERENCES giorno(id) ON DELETE CASCADE
+);
+
+-- Tabella attività
+CREATE TABLE attività (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+    titolo VARCHAR(100) NOT NULL,
+    descrizione TEXT,
+    completata BOOLEAN NOT NULL DEFAULT FALSE,
+    idToDoList INT UNSIGNED NOT NULL,  
+    FOREIGN KEY (idToDoList) REFERENCES toDoList(id) ON DELETE CASCADE
+);
+
+
+
+
+
+---------------
+Se vuoi automatizzare l'assegnazione delle etichette per ogni nuovo utente, puoi creare un trigger che esegue automaticamente
+l'inserimento delle etichette standard ogni volta che un nuovo utente viene creato.
+Ecco un esempio di trigger che aggiunge le etichette predefinite quando un nuovo utente viene inserito:
+
+DELIMITER //
+
+CREATE TRIGGER after_user_insert
+AFTER INSERT ON utente
+FOR EACH ROW
+BEGIN
+    INSERT INTO etichette (titolo, sottotitolo, colore, utente)
+    VALUES
+        ('Lavoro', 'Attività professionale', 'rgb(0, 0, 255)', NEW.id),
+        ('Personale', 'Attività personali', 'rgb(0, 255, 0)', NEW.id),
+        ('Urgente', 'Attività da fare subito', 'rgb(255, 0, 0)', NEW.id);
+END //
+
+DELIMITER ;

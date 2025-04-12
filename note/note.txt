@@ -1,0 +1,25 @@
+prgetto mio : Calendario / agenda
+    Deve avere:
+    - libreria PDO
+    - accesso
+
+    database entità:
+    * utente: passwrd
+    * evento: (invtati?)
+    
+    ** to do list giornaliera 
+    ** note (giornaliere/future) 
+
+    
+    deve fare:
+    - creare / modificare eventi
+
+
+
+
+
+tips:
+solo gli aministratori possono:
+- eliminare altri utenti forzatamente
+- creare / convertire altri aministratori
+- 
