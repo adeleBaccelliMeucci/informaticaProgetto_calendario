@@ -13,20 +13,27 @@ CREATE TABLE etichette (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
     titolo VARCHAR(255) NOT NULL,
     sottotitolo VARCHAR(255),
-    difficoltà INT DEFAULT NULL,  -- Considera un nome più chiaro come 'difficoltà' per la colonna
     colore VARCHAR(20),  -- Formato RGB, ad esempio 'rgb(255, 0, 0)'
     username VARCHAR(50), 
-    FOREIGN KEY (username) REFERENCES utente(username)
+    FOREIGN KEY (username) REFERENCES utente(username)  ON DELETE CASCADE
 );
 
 -- Tabella giorno
+/*
 CREATE TABLE giorno (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
     dataGiorno DATE NOT NULL,
     idEtichetta INT UNSIGNED,
-    username VARCHAR(50) NOT NULL,  -- Utilizzo 'username' per coerenza con 'utente'
+    username VARCHAR(50) NOT NULL,  
     FOREIGN KEY (idEtichetta) REFERENCES etichette(id),
     FOREIGN KEY (username) REFERENCES utente(username) ON DELETE CASCADE
+);*/
+
+CREATE TABLE etichetta_giorno (
+    idEtichetta INT UNSIGNED,
+    dataGiorno DATE,
+    PRIMARY KEY (idEtichetta, dataGiorno),
+    FOREIGN KEY (idEtichetta) REFERENCES etichette(id) ON DELETE CASCADE
 );
 
 -- Tabella evento
@@ -34,10 +41,14 @@ CREATE TABLE evento (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
     titolo VARCHAR(100) NOT NULL,
     descrizione TEXT,
-    inizio TIME NOT NULL,
-    fine TIME NOT NULL,
-    idGiorno INT UNSIGNED NOT NULL, 
-    FOREIGN KEY (idGiorno) REFERENCES giorno(id) ON DELETE CASCADE
+    colore VARCHAR(20),  -- Formato RGB, ad esempio 'rgb(255, 0, 0)'
+    orarioInizio TIME NOT NULL,
+    orarioFine TIME NOT NULL,
+    dataInizio DATE NOT NULL DEFAULT (CURDATE()),
+    dataFine DATE NOT NULL DEFAULT (CURDATE()),
+    username VARCHAR(50) NOT NULL,
+    FOREIGN KEY (username) REFERENCES utente(username) ON DELETE CASCADE,
+    CHECK (orarioFine > orarioInizio)
 );
 
 -- Tabella toDoList
@@ -45,8 +56,9 @@ CREATE TABLE toDoList (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
     titolo VARCHAR(100) NOT NULL,
     urgenza INT CHECK (urgenza BETWEEN 1 AND 10),
-    idGiorno INT UNSIGNED NOT NULL, 
-    FOREIGN KEY (idGiorno) REFERENCES giorno(id) ON DELETE CASCADE
+    giorno DATE NOT NULL DEFAULT (CURDATE()),
+    username VARCHAR(50) NOT NULL,
+    FOREIGN KEY (username) REFERENCES utente(username) ON DELETE CASCADE
 );
 
 -- Tabella attività
@@ -59,6 +71,20 @@ CREATE TABLE attività (
     FOREIGN KEY (idToDoList) REFERENCES toDoList(id) ON DELETE CASCADE
 );
 
+DELIMITER //
+CREATE TRIGGER after_user_insert
+AFTER INSERT ON utente
+FOR EACH ROW
+BEGIN
+    INSERT INTO etichette (titolo, sottotitolo, colore, username)
+    VALUES
+        ('Lavoro', 'Attività professionale', 'rgb(0, 204, 255)', NEW.username),
+        ('Malattia', 'Giorno in malattia', 'rgb(179, 208, 64)', NEW.username),
+        ('Vacanza', 'Riposo personale', 'rgb(226, 24, 24)', NEW.username),
+        ('Mestruazioni', '', 'rgb(233, 33, 255)', NEW.username),
+        ('Impegnata', 'Attività impegnative da svolgere', 'rgb(0, 145, 182)', NEW.username);
+END //
+DELIMITER ;
 
 insert into calendario.utente(username, password, amministratore)
 values ('adele', '$2y$10$7rvVIU.pxjksJMxJsQh3Fuvvav4B.PAezy1B7I5nnk85aHhEqsWuy', true);
