@@ -1,5 +1,0 @@
-select * from utente;
-
-UPDATE utente
-SET amministratore = true
-WHERE username = "adele";

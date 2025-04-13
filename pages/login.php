@@ -15,14 +15,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Verifica se l'utente esiste e se la password è corretta
         if ($user && password_verify($password, $user['password'])) {
             // Successo: Login riuscito
-            echo "Login riuscito! Benvenuto, " . htmlspecialchars($username);
+            //echo "Login riuscito! Benvenuto, " . htmlspecialchars($username);
             
             // Avvia la sessione e memorizza l'utente
             session_start();
             $_SESSION["username"] = $user["username"]; // Usa username come identificativo
             //echo " ID utente: " . htmlspecialchars($_SESSION["username"]);
 
-            //REINDIRIZZARE ALLA HOME
+            header("Location: home.php");
+            exit;
+
         } else {
             echo "Credenziali errate!";
         }

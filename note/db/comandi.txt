@@ -1,18 +1,3 @@
-database
-utente: nome, passwrd, bolean se è aministratore 
-evento
-to do list
-attività (del to do list)
-giorno : etichetta (giornata impegnata/fuori casa/relax/mestruazione/ecc...)
-
-schema:
-utente(username (pk), password, amministratore);
-giorno(id(pk), dataGiorno, idEtichetta(fk), idUtente(fk));
-etichette(id(pk), titolo, sottotitolo, difficile, colore, utente(fk));
-evento(id(pk), titolo, descrizione, inizio, fine, idGiorno(fk));
-toDoList(id(pk), titolo, urgenza, idGiorno(fk));
-attività(id(pk), titolo, descrizione, completata, idToDoList(fk));
-
 CREATE DATABASE calendario;
 USE calendario;
 
@@ -75,25 +60,5 @@ CREATE TABLE attività (
 );
 
 
-
-
-
----------------
-Se vuoi automatizzare l'assegnazione delle etichette per ogni nuovo utente, puoi creare un trigger che esegue automaticamente
-l'inserimento delle etichette standard ogni volta che un nuovo utente viene creato.
-Ecco un esempio di trigger che aggiunge le etichette predefinite quando un nuovo utente viene inserito:
-
-DELIMITER //
-
-CREATE TRIGGER after_user_insert
-AFTER INSERT ON utente
-FOR EACH ROW
-BEGIN
-    INSERT INTO etichette (titolo, sottotitolo, colore, utente)
-    VALUES
-        ('Lavoro', 'Attività professionale', 'rgb(0, 0, 255)', NEW.id),
-        ('Personale', 'Attività personali', 'rgb(0, 255, 0)', NEW.id),
-        ('Urgente', 'Attività da fare subito', 'rgb(255, 0, 0)', NEW.id);
-END //
-
-DELIMITER ;
+insert into calendario.utente(username, password, amministratore)
+values ('adele', '$2y$10$7rvVIU.pxjksJMxJsQh3Fuvvav4B.PAezy1B7I5nnk85aHhEqsWuy', true);

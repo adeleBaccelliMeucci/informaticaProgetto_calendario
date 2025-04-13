@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
 $dbname = 'calendario';
-$username = 'root';  // Cambia se hai un altro utente
-$password = '';      // Cambia se hai una password
+$username = 'root';  
+$password = '';      //da cambiare
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
