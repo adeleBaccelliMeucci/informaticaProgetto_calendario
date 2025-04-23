@@ -11,7 +11,7 @@
 
     <?php
     session_start();
-    require 'connesione.php'; // Connessione al DB
+    include 'connesione.php'; // Connessione al DB
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $username = trim($_POST["username"]);

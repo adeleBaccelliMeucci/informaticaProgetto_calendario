@@ -1,5 +1,5 @@
 <?php
-require 'connesione.php'; // Connessione al DB
+include 'connesione.php'; // Connessione al DB
 
 // Se il form è stato inviato
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

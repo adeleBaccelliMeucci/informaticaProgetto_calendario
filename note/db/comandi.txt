@@ -18,17 +18,6 @@ CREATE TABLE etichette (
     FOREIGN KEY (username) REFERENCES utente(username)  ON DELETE CASCADE
 );
 
--- Tabella giorno
-/*
-CREATE TABLE giorno (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
-    dataGiorno DATE NOT NULL,
-    idEtichetta INT UNSIGNED,
-    username VARCHAR(50) NOT NULL,  
-    FOREIGN KEY (idEtichetta) REFERENCES etichette(id),
-    FOREIGN KEY (username) REFERENCES utente(username) ON DELETE CASCADE
-);*/
-
 CREATE TABLE etichetta_giorno (
     idEtichetta INT UNSIGNED,
     dataGiorno DATE,
@@ -46,9 +35,15 @@ CREATE TABLE evento (
     orarioFine TIME NOT NULL,
     dataInizio DATE NOT NULL DEFAULT (CURDATE()),
     dataFine DATE NOT NULL DEFAULT (CURDATE()),
-    username VARCHAR(50) NOT NULL,
-    FOREIGN KEY (username) REFERENCES utente(username) ON DELETE CASCADE,
     CHECK (orarioFine > orarioInizio)
+);
+
+CREATE TABLE utente_evento (
+    username VARCHAR(50),
+    evento_id INT UNSIGNED,
+    PRIMARY KEY (username, evento_id),
+    FOREIGN KEY (username) REFERENCES utente(username) ON DELETE CASCADE,
+    FOREIGN KEY (evento_id) REFERENCES evento(id) ON DELETE CASCADE
 );
 
 -- Tabella toDoList
@@ -81,7 +76,6 @@ BEGIN
         ('Lavoro', 'Attività professionale', 'rgb(0, 204, 255)', NEW.username),
         ('Malattia', 'Giorno in malattia', 'rgb(179, 208, 64)', NEW.username),
         ('Vacanza', 'Riposo personale', 'rgb(226, 24, 24)', NEW.username),
-        ('Mestruazioni', '', 'rgb(233, 33, 255)', NEW.username),
         ('Impegnata', 'Attività impegnative da svolgere', 'rgb(0, 145, 182)', NEW.username);
 END //
 DELIMITER ;
