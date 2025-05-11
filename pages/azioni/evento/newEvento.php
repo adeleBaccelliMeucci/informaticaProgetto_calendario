@@ -81,62 +81,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="p-4">
 
-<div class="container">
-    <h1>Crea nuovo evento</h1>
+    <div class="container">
+        <h1>Crea nuovo evento</h1>
 
-    <?php
-    $oggi = date('Y-m-d');
-    $oraInizio = date('H:i');
+        <?php
+        $oggi = date('Y-m-d');
+        $oraInizio = date('H:i');
 
-    $oraFineDateTime = new DateTime($oraInizio);
-    $oraFineDateTime->modify('+1 hour');
-    $oraFine = $oraFineDateTime->format('H:i');
-    ?>
+        $oraFineDateTime = new DateTime($oraInizio);
+        $oraFineDateTime->modify('+1 hour');
+        $oraFine = $oraFineDateTime->format('H:i');
+        ?>
 
-    <form method="POST">
-        <div class="mb-3">
-            <label>Titolo</label>
-            <input type="text" name="titolo" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label>Descrizione</label>
-            <textarea name="descrizione" class="form-control"></textarea>
-        </div>
-        <div class="mb-3">
-            <label>Colore (RGB o nome CSS)</label>
-            <input type="color" name="colore" class="form-control" value="#000000">
-        </div>
-        <div class="mb-3">
-            <label>Data Inizio</label>
-            <input type="date" name="dataInizio" class="form-control" required value="<?= $oggi ?>">
-        </div>
-        <div class="mb-3">
-            <label>Data Fine</label>
-            <input type="date" name="dataFine" class="form-control" required value="<?= $oggi ?>">
-        </div>
-        <div class="mb-3">
-            <label>Orario Inizio</label>
-            <input type="time" name="orarioInizio" class="form-control" required value="<?= $oraInizio ?>">
-        </div>
-        <div class="mb-3">
-            <label>Orario Fine</label>
-            <input type="time" name="orarioFine" class="form-control" required value="<?= $oraFine ?>">
-        </div>
-        <div class="mb-3">
-            <label>Coinvolgi altri utenti:</label>
-            <?php foreach ($utenti as $utente): ?>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="utenti[]" value="<?= $utente['username'] ?>" id="check<?= $utente['username'] ?>">
-                    <label class="form-check-label" for="check<?= $utente['username'] ?>">
-                        <?= $utente['username'] ?>
-                    </label>
+        <form method="POST">
+            <div class="mb-3">
+                <label>Titolo</label>
+                <input type="text" name="titolo" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Descrizione</label>
+                <textarea name="descrizione" class="form-control"></textarea>
+            </div>
+            <div class="mb-3">
+                <label>Colore (RGB o nome CSS)</label>
+                <input type="color" name="colore" class="form-control" value="#000000">
+            </div>
+            <div class="mb-3">
+                <label>Data Inizio</label>
+                <input type="date" name="dataInizio" class="form-control" required value="<?= $oggi ?>">
+            </div>
+            <div class="mb-3">
+                <label>Data Fine</label>
+                <input type="date" name="dataFine" class="form-control" required value="<?= $oggi ?>">
+            </div>
+            <div class="mb-3">
+                <label>Orario Inizio</label>
+                <input type="time" name="orarioInizio" class="form-control" required value="<?= $oraInizio ?>">
+            </div>
+            <div class="mb-3">
+                <label>Orario Fine</label>
+                <input type="time" name="orarioFine" class="form-control" required value="<?= $oraFine ?>">
+            </div>
+            <?php if (!empty($utenti)) { ?>
+                <div class="mb-3">
+                    <label>Coinvolgi altri utenti:</label>
+                    <?php foreach ($utenti as $utente): ?>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="utenti[]" value="<?= $utente['username'] ?>" id="check<?= $utente['username'] ?>">
+                            <label class="form-check-label" for="check<?= $utente['username'] ?>">
+                                <?= $utente['username'] ?>
+                            </label>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-            <?php endforeach; ?>
-        </div>
-        <button type="submit" class="btn btn-primary">Crea Evento</button>
-    </form>
-</div>
+                
+            <?php } ?>
+            <button type="submit" class="btn btn-primary">Crea Evento</button>
+        </form>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

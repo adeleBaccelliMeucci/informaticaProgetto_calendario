@@ -78,24 +78,23 @@ if (isset($_SESSION['username']) && $_SESSION['username'] !== null) {
                 <li class="nav-item">
                     <a class="nav-link active" href="../index.php">Exit</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                         New
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="azioni/evento/newEvento.php">Evento</a></li>
-                        <li><a class="dropdown-item" href="#">To do list</a></li>
-                        <li><a class="dropdown-item" href="#">Etichetta</a></li>
+                        <li><a class="dropdown-item" href="azioni/toDoList/newToDoList.php">To-Do list</a></li>
+                        
                     </ul>
                 </li>
             </ul>
+            <!--
             <form class="d-flex" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
+           -->
         </div>
     </div>
 </nav>
@@ -104,25 +103,35 @@ if (isset($_SESSION['username']) && $_SESSION['username'] !== null) {
     <div class="row">
 
         <!-- Eventi -->
-        <div class="col-md-9">
+        <div class="col-md-6">
             <div class="border border-primary p-3 rounded" style="min-height: 70vh;">
                 <?php if (empty($eventi)): ?>
-                    <h2 class="text-primary">Nessun evento disponibile</h2>
+                    <h2 class="text-primary">Nessun evento</h2>
                 <?php else: ?>
                     <ul class="list-group">
-                        <?php foreach ($eventi as $evento): ?>
-                            <li class="list-group-item mb-2" style="border-left: 5px solid <?= htmlspecialchars($evento['colore']) ?>;">
-                                <h5><?= htmlspecialchars($evento['titolo']) ?></h5>
-                                <p class="mb-1"><?= nl2br(htmlspecialchars($evento['descrizione'])) ?></p>
-                                <small>
-                                    Dal <?= $evento['dataInizio'] ?> ore <?= substr($evento['orarioInizio'], 0, 5) ?> 
-                                    al <?= $evento['dataFine'] ?> ore <?= substr($evento['orarioFine'], 0, 5) ?>
-                                </small>
-                                <div class="mt-2">
-                                    <a href="azioni/evento/modificaEvento.php?id=<?= htmlspecialchars($evento['id']) ?>" class="btn btn-sm btn-warning">Modifica</a>
-                                    <a href="azioni/evento/eliminaEvento.php?id=<?= htmlspecialchars($evento['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo evento?');">Elimina</a>
-                                </div>
-                            </li>
+                        <?php foreach ($eventi as $evento): 
+                            if($evento['dataFine'] === date('Y-m-d')):?>
+                                <li class="list-group-item mb-2" style="border-left: 5px solid <?= htmlspecialchars($evento['colore']) ?>;">
+                                    <h5><?= htmlspecialchars($evento['titolo']) ?></h5>
+                                    <p class="mb-1"><?= nl2br(htmlspecialchars($evento['descrizione'])) ?></p>
+                                    <small>
+                                        <?php 
+                                        if ($evento['dataInizio'] === $evento['dataFine']) {
+                                            $data = date("d/m/Y", strtotime($evento['dataInizio']));
+                                            echo $data . " <br> " . substr($evento['orarioInizio'], 0, 5) . " - " . substr($evento['orarioFine'], 0, 5);
+                                        }else{
+                                            $dataInizio = date("d/m/Y", strtotime($evento['dataInizio']));
+                                            $dataFine = date("d/m/Y", strtotime($evento['dataFine']));
+                                            echo "Dal " . $dataInizio . " al " . $dataFine . " <br> " . substr($evento['orarioInizio'], 0, 5) . " - " . substr($evento['orarioFine'], 0, 5);
+                                        }
+                                        ?>
+                                    </small>
+                                    <div class="mt-2">
+                                        <a href="azioni/evento/modificaEvento.php?id=<?= htmlspecialchars($evento['id']) ?>" class="btn btn-sm btn-warning">Modifica</a>
+                                        <a href="azioni/evento/eliminaEvento.php?id=<?= htmlspecialchars($evento['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo evento?');">Elimina</a>
+                                    </div>
+                                </li>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>
@@ -130,22 +139,93 @@ if (isset($_SESSION['username']) && $_SESSION['username'] !== null) {
         </div>
 
         <!-- To-Do List -->
-        <div class="col-md-3">
+        <div class="col-md-6">
             <div class="border border-success p-3 rounded" style="min-height: 70vh;">
                 <?php if (empty($todoList)): ?>
-                    <h2 class="text-success">Nessuna to-do list trovata</h2>
+                    <h2 class="text-success">Nessuna to-do list</h2>
                 <?php else: ?>
-                    <ul class="list-group">
-                        <?php foreach ($todoList as $todo): ?>
-                            <li class="list-group-item mb-2">
-                                <h6><?= htmlspecialchars($todo['titolo']) ?></h6>
-                                <p class="mb-1">
-                                    Giorno: <?= $todo['giorno'] ?><br>
-                                    Urgenza: <strong><?= $todo['urgenza'] ?>/10</strong>
-                                </p>
-                            </li>
+
+                    <?php
+                    if (!isset($_SESSION['username'])) {
+                        header("Location: login.php");
+                        exit();
+                    }
+
+                    $username = $_SESSION['username'];
+
+                    // Recupera le to-do list con le relative attività
+                    $sql = "SELECT t.id AS todo_id, t.titolo AS todo_titolo, t.urgenza, t.giorno,
+                                a.id AS attivita_id, a.titolo AS attivita_titolo, a.descrizione, a.completata
+                            FROM toDoList t
+                            LEFT JOIN attivita a ON t.id = a.idToDoList
+                            WHERE t.username = :username
+                            ORDER BY t.giorno DESC, t.urgenza DESC";
+
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([':username' => $username]);
+                    $righe = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $todoData = [];
+                    foreach ($righe as $riga) {
+                        $id = $riga['todo_id'];
+                        if (!isset($todoData[$id])) {
+                            $todoData[$id] = [
+                                'titolo' => $riga['todo_titolo'],
+                                'urgenza' => $riga['urgenza'],
+                                'giorno' => $riga['giorno'],
+                                'attivita' => []
+                            ];
+                        }
+                        if (!empty($riga['attivita_id'])) {
+                            $todoData[$id]['attivita'][] = [
+                                'id' => $riga['attivita_id'],
+                                'titolo' => $riga['attivita_titolo'],
+                                'descrizione' => $riga['descrizione'],
+                                'completata' => $riga['completata']
+                            ];
+                        }
+                    }
+                    ?>
+
+                    
+                    <?php if (!empty($todoData)): ?>
+                        <?php foreach ($todoData as $id => $todo): 
+                            if($todo['giorno'] === date('Y-m-d')):?>
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <strong><?= htmlspecialchars($todo['titolo']) ?></strong>
+                                        <span class="badge bg-warning text-dark ms-2">Urgenza: <?= $todo['urgenza'] ?></span>
+                                        <span class="text-muted float-end"><?= $todo['giorno'] ?></span>
+                                    </div>
+                                    <div class="card-body">
+                                        <?php if (empty($todo['attivita'])): ?>
+                                            <p class="text-muted">Nessuna attività associata.</p>
+                                        <?php else: ?>
+                                            <ul class="list-group">
+                                                <?php foreach ($todo['attivita'] as $att): ?>
+                                                    <li class="list-group-item">
+                                                        <form method="post" action="azioni/toDoList/completa_attivita.php" class="d-flex justify-content-between align-items-center">
+                                                            <input type="hidden" name="attivita_id" value="<?= $att['id'] ?>">
+                                                            <div>
+                                                                <strong><?= htmlspecialchars($att['titolo']) ?></strong><br>
+                                                                <small><?= nl2br(htmlspecialchars($att['descrizione'])) ?></small>
+                                                            </div>
+                                                            <button type="submit" class="btn btn-sm <?= $att['completata'] ? 'btn-secondary' : 'btn-success' ?>">
+                                                                <?= $att['completata'] ? 'Segna incompleta' : 'Segna completata' ?>
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         <?php endforeach; ?>
-                    </ul>
+                    <?php endif; ?>
+
+
+
                 <?php endif; ?>
             </div>
         </div>

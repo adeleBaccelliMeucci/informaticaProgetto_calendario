@@ -8,23 +8,6 @@ CREATE TABLE utente (
     amministratore BOOLEAN NOT NULL DEFAULT FALSE
 );
 
--- Tabella etichette
-CREATE TABLE etichette (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
-    titolo VARCHAR(255) NOT NULL,
-    sottotitolo VARCHAR(255),
-    colore VARCHAR(20),  -- Formato RGB, ad esempio 'rgb(255, 0, 0)'
-    username VARCHAR(50), 
-    FOREIGN KEY (username) REFERENCES utente(username)  ON DELETE CASCADE
-);
-
-CREATE TABLE etichetta_giorno (
-    idEtichetta INT UNSIGNED,
-    dataGiorno DATE,
-    PRIMARY KEY (idEtichetta, dataGiorno),
-    FOREIGN KEY (idEtichetta) REFERENCES etichette(id) ON DELETE CASCADE
-);
-
 -- Tabella evento
 CREATE TABLE evento (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
@@ -35,7 +18,8 @@ CREATE TABLE evento (
     orarioFine TIME NOT NULL,
     dataInizio DATE NOT NULL DEFAULT (CURDATE()),
     dataFine DATE NOT NULL DEFAULT (CURDATE()),
-    CHECK (orarioFine > orarioInizio)
+    CHECK (orarioFine > orarioInizio),
+    CHECK (dataFine >= dataInizio)
 );
 
 CREATE TABLE utente_evento (
@@ -57,7 +41,7 @@ CREATE TABLE toDoList (
 );
 
 -- Tabella attività
-CREATE TABLE attività (
+CREATE TABLE attivita (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
     titolo VARCHAR(100) NOT NULL,
     descrizione TEXT,
@@ -66,19 +50,6 @@ CREATE TABLE attività (
     FOREIGN KEY (idToDoList) REFERENCES toDoList(id) ON DELETE CASCADE
 );
 
-DELIMITER //
-CREATE TRIGGER after_user_insert
-AFTER INSERT ON utente
-FOR EACH ROW
-BEGIN
-    INSERT INTO etichette (titolo, sottotitolo, colore, username)
-    VALUES
-        ('Lavoro', 'Attività professionale', 'rgb(0, 204, 255)', NEW.username),
-        ('Malattia', 'Giorno in malattia', 'rgb(179, 208, 64)', NEW.username),
-        ('Vacanza', 'Riposo personale', 'rgb(226, 24, 24)', NEW.username),
-        ('Impegnata', 'Attività impegnative da svolgere', 'rgb(0, 145, 182)', NEW.username);
-END //
-DELIMITER ;
 
 insert into calendario.utente(username, password, amministratore)
 values ('adele', '$2y$10$7rvVIU.pxjksJMxJsQh3Fuvvav4B.PAezy1B7I5nnk85aHhEqsWuy', true);

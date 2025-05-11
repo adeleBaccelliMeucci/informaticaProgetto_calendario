@@ -11,6 +11,7 @@ if (!isset($_SESSION['username'])) {
 // Verifica che l'ID evento sia passato e valido
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     echo "ID evento non valido.";
+    header('Location: ../../home.php');
     exit();
 }
 
