@@ -2,7 +2,7 @@
 $host = 'localhost';
 $dbname = 'calendario';
 $username = 'root';  
-$password = 'adele';      //da cambiare
+$password = '';      //da cambiare
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
