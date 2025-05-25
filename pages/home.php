@@ -110,7 +110,7 @@ if (isset($_SESSION['username']) && $_SESSION['username'] !== null) {
                 <?php else: ?>
                     <ul class="list-group">
                         <?php foreach ($eventi as $evento): 
-                            if($evento['dataFine'] === date('Y-m-d')):?>
+                            //if($evento['dataFine'] === date('Y-m-d')):?>
                                 <li class="list-group-item mb-2" style="border-left: 5px solid <?= htmlspecialchars($evento['colore']) ?>;">
                                     <h5><?= htmlspecialchars($evento['titolo']) ?></h5>
                                     <p class="mb-1"><?= nl2br(htmlspecialchars($evento['descrizione'])) ?></p>
@@ -131,7 +131,7 @@ if (isset($_SESSION['username']) && $_SESSION['username'] !== null) {
                                         <a href="azioni/evento/eliminaEvento.php?id=<?= htmlspecialchars($evento['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo evento?');">Elimina</a>
                                     </div>
                                 </li>
-                            <?php endif; ?>
+                            <?php //endif; ?>
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>
@@ -190,7 +190,7 @@ if (isset($_SESSION['username']) && $_SESSION['username'] !== null) {
                     
                     <?php if (!empty($todoData)): ?>
                         <?php foreach ($todoData as $id => $todo): 
-                            if($todo['giorno'] === date('Y-m-d')):?>
+                            //if($todo['giorno'] === date('Y-m-d')):?>
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
                                         <strong><?= htmlspecialchars($todo['titolo']) ?></strong>
@@ -220,7 +220,7 @@ if (isset($_SESSION['username']) && $_SESSION['username'] !== null) {
                                         <?php endif; ?>
                                     </div>
                                 </div>
-                            <?php endif; ?>
+                            <?php //endif; ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
 
